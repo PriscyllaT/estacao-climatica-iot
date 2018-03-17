@@ -1,4 +1,5 @@
-/*
+
+ /*
   estacao-metereologica-iot
 
   Autora: Priscylla Tavares
@@ -9,14 +10,29 @@
 */
 
 #include <DHT.h>
+#include<SoftwareSerial.h>
+#include <PubSubClient.h>
+
+
 #define DHTPIN 2 //pino digital para o sensor de umidade e temperatura
 #define DHTTYPE DHT11   
 DHT dht(DHTPIN, DHTTYPE);
 
+#define SSID "NOME_DA_SUA_WIFI"
+#define PASSWORD "SUA_SENHA"
+SoftwareSerial monitor(3, 4);
+
+
 void setup() {
   Serial.begin(9600);
-  Serial.println("Sataus: DHT11 funcionando");
   dht.begin();
+  Serial.println("Sataus: DHT11 funcionando");
+  monitor.begin(19200);
+  Serial.println("Inicializando WiFi...");
+ 
+  testeComunicacaoEsp8266();
+  conectarWIFI();
+
 }
 
 void loop() {
@@ -41,3 +57,43 @@ void loop() {
   
   delay(3000);
 }
+
+void testeComunicacaoEsp8266(){
+  //testando comunicação com o módulo WiFi
+  monitor.flush();
+  monitor.println("AT");
+  delay(2000);
+    
+  if(monitor.find("OK")){
+    Serial.println("Comunicacao com modulo ESP8266: OK");
+  }
+  else {
+    Serial.println("Erro no modulo ESP8266");
+  }
+}
+
+boolean conectarWIFI(){
+  Serial.println("Conectando a WiFi...");
+  String cmd ="AT+CWMODE=1";
+  monitor.println(cmd);
+  delay(2000);
+  monitor.flush(); //clear buffer
+  cmd="AT+CWJAP=\"";
+  cmd+=SSID;
+  cmd+="\",\"";
+  cmd+=PASSWORD;
+  cmd+="\"";
+  monitor.println(cmd);
+  delay(5000);
+  
+  if(monitor.find("OK")){
+    Serial.println("Conectado com sucesso!");
+    return true;
+  }else{
+    Serial.println("Falha na conexao!");
+    return false;
+  }
+  Serial.println();
+}
+
+
