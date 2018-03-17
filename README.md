@@ -1,10 +1,12 @@
 # estacao-metereologica-iot
 
-Projeto que pretende fazer a leitura de sensor de umidade,
-temperatura e chuva, e enviar esses dados para serviço através do
+Projeto que faz a leitura de sensor de umidade,
+temperatura e chuva, e envia esses dados para serviço na WEB através do
 protocolo MQTT. 
-Utiliza a placa Arduino Uno, sensor DHT11 e sensor de chuva.
+Utiliza a placa Arduino Uno, sensor de temperatura e umidade DHT11 e sensor de chuva.
+Módulo de comunicação WiFi
 
 # Bibliotecas utilizadas:
 - [Adafruit DHT Humidity & Temperature Unified Sensor Library](https://github.com/adafruit/DHT-sensor-library)
 - [ESP8266 Community](https://github.com/esp8266)
+- [Arduino Client for MQTT](https://github.com/knolleary/pubsubclient)
