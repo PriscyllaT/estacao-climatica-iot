@@ -12,14 +12,15 @@
 #include <DHT.h>
 #include<SoftwareSerial.h>
 #include <PubSubClient.h>
-
+//#include<ESP8266WiFi.h>
 
 #define DHTPIN 2 //pino digital para o sensor de umidade e temperatura
 #define DHTTYPE DHT11   
 DHT dht(DHTPIN, DHTTYPE);
 
-#define SSID "NOME_DA_SUA_WIFI"
-#define PASSWORD "SUA_SENHA"
+#define SSID "GVT-080B";
+#define PASSWORD "00000000"
+
 SoftwareSerial monitor(3, 4);
 
 
