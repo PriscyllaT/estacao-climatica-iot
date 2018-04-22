@@ -11,7 +11,7 @@ DHT dht(DHTPIN, DHTTYPE);
 /************************* WiFi Access Point *********************************/
 
 #define WLAN_SSID       "GVT-080B"
-#define WLAN_PASS       "00000000"
+#define WLAN_PASS       "32216512"
 int status = WL_IDLE_STATUS;
 
 /************************* MQTT Setup *********************************/
@@ -38,6 +38,9 @@ const char * myWriteAPIKey = "FTXKGNZ7M6UIT8V9";
 // Notice MQTT paths follow the form: channels/<channelId>/publish/fields/field<fieldNumer>
 Adafruit_MQTT_Publish temperatura = Adafruit_MQTT_Publish(&mqtt, "channels/452132/publish/fields/field1/FTXKGNZ7M6UIT8V9");
 Adafruit_MQTT_Publish umidade = Adafruit_MQTT_Publish(&mqtt, "channels/452132/publish/fields/field2/FTXKGNZ7M6UIT8V9");
+
+/*************************** Variaveis ************************************/
+int timesCount = 0;
 
 /*************************** Sketch Code ************************************/
 
@@ -69,38 +72,45 @@ dht.begin();
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
+  timesCount = 1800;
+
 }
 
 void loop() {
   // Ensure the connection to the MQTT server is alive (this will make the first
   // connection and automatically reconnect when disconnected).  See the MQTT_connect
   // function definition further below.
-  MQTT_connect();
 
-
-  float t = dht.readTemperature(); // Read temperature from DHT sensor.
-  float h = dht.readHumidity();  // Read humidity from DHT sensor
- 
-  // Now we can publish stuff!
-  Serial.print(F("\nEnviando temperatura "));
-  Serial.print(t);
-  Serial.print("...");
-  if (! temperatura.publish(t)) {
-    Serial.println(F("Failed"));
-  } else {
-    Serial.println(F("OK!"));
+  if(timesCount == 1800){
+    MQTT_connect();
+   
+  
+    float t = dht.readTemperature(); // Read temperature from DHT sensor.
+    float h = dht.readHumidity();  // Read humidity from DHT sensor
+   
+    // Now we can publish stuff!
+    Serial.print(F("\nEnviando temperatura "));
+    Serial.print(t);
+    Serial.print("...");
+    if (! temperatura.publish(t)) {
+      Serial.println(F("Failed"));
+    } else {
+      Serial.println(F("OK!"));
+    }
+  
+    Serial.print(F("\nEnviando umidade "));
+    Serial.print(h);
+  
+     if (! umidade.publish(h)) {
+      Serial.println(F("Failed"));
+    } else {
+      Serial.println(F("OK!"));
+    }
+    timesCount = 0;
   }
 
-  Serial.print(F("\nEnviando umidade "));
-  Serial.print(h);
-
-   if (! umidade.publish(h)) {
-    Serial.println(F("Failed"));
-  } else {
-    Serial.println(F("OK!"));
-  }
-
-delay(30000);
+  delay(1000);
+  timesCount++;
   
 }
 
