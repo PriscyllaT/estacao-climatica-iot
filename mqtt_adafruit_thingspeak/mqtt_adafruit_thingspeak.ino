@@ -26,8 +26,6 @@ int status = WL_IDLE_STATUS;
 SoftwareSerial Serial1(3, 4);
 // Create an ESP8266 WiFiClient class to connect to the MQTT server.
 WiFiEspClient client;
-// or... use WiFiFlientSecure for SSL
-//WiFiClientSecure client;
 
 // Setup the MQTT client class by passing in the WiFi client and MQTT server and login details.
 Adafruit_MQTT_Client mqtt(&client, SERVER, SERVERPORT, USERNAME, MQTT_KEY);
@@ -39,9 +37,6 @@ const char * myWriteAPIKey = "FTXKGNZ7M6UIT8V9";
 Adafruit_MQTT_Publish temperatura = Adafruit_MQTT_Publish(&mqtt, "channels/452132/publish/fields/field1/FTXKGNZ7M6UIT8V9");
 Adafruit_MQTT_Publish umidade = Adafruit_MQTT_Publish(&mqtt, "channels/452132/publish/fields/field2/FTXKGNZ7M6UIT8V9");
 
-/*************************** Variaveis ************************************/
-int timesCount = 0;
-
 /*************************** Sketch Code ************************************/
 
 void MQTT_connect();
@@ -50,12 +45,12 @@ void setup() {
   Serial.begin(9600);
   delay(10);
 dht.begin();
-  Serial.println(F("Adafruit MQTT demo"));
+  Serial.println(F("MQTT - Estacao Climatica IoT"));
   Serial1.begin(19200);
 
   WiFi.init(&Serial1);
   // Connect to WiFi access point.
-  Serial.println(); Serial.println();
+  Serial.println();
   Serial.print("Connecting to ");
   Serial.println(WLAN_SSID);
 
@@ -72,7 +67,6 @@ dht.begin();
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
-  timesCount = 1800;
 
 }
 
@@ -81,10 +75,8 @@ void loop() {
   // connection and automatically reconnect when disconnected).  See the MQTT_connect
   // function definition further below.
 
-  if(timesCount == 1800){
     MQTT_connect();
-   
-  
+     
     float t = dht.readTemperature(); // Read temperature from DHT sensor.
     float h = dht.readHumidity();  // Read humidity from DHT sensor
    
@@ -97,7 +89,9 @@ void loop() {
     } else {
       Serial.println(F("OK!"));
     }
-  
+    
+    delay15s();
+    
     Serial.print(F("\nEnviando umidade "));
     Serial.print(h);
   
@@ -106,14 +100,21 @@ void loop() {
     } else {
       Serial.println(F("OK!"));
     }
-    timesCount = 0;
-  }
-
-  delay(1000);
-  timesCount++;
-  
+ 
+  delay30s();
+ 
 }
 
+void delay30s(){
+  for(int i = 0; i < 30; i++){
+    delay(1000);
+  }
+}
+void delay15s(){
+  for(int i = 0; i < 15; i++){
+    delay(1000);
+  }
+}
 // Function to connect and reconnect as necessary to the MQTT server.
 // Should be called in the loop function and it will take care if connecting.
 void MQTT_connect() {
