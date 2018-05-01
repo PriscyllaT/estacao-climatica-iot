@@ -1,3 +1,12 @@
+ /*
+  estacao-metereologica-iot
+
+  Autora: Priscylla Tavares
+  Descricao: Projeto que pretende fazer a leitura de sensor de umidade,
+  temperatura e chuva, e envia esses dados para serviço através do
+  protocolo MQTT. 
+  Utiliza a placa Arduino Uno, sensor DHT11 e sensor de chuva.
+*/
 
 #include "WiFiEsp.h"
 #include "WiFiEspClient.h"
@@ -86,11 +95,11 @@ void loop() {
     
     float t = dht.readTemperature(); // Lê a temperatura do sensor DHT.
     float h = dht.readHumidity();  // Lê a umidade do sensor DHT.
-   
+    
     // Plublicando temperatura
-    Serial.print(F("\nEnviando temperatura "));
+    Serial.print(F("\nEnviando temperatura: "));
     Serial.print(t);
-    Serial.print("...");
+   
     if (! temperatura.publish(t)) {
       Serial.println(F("Failed"));
     } else {
@@ -98,10 +107,10 @@ void loop() {
     }
 
     //delay necessário para o thinkspeak
-    delay15s();
-
+    delay16s();
+  
     // Plublicando umidade
-    Serial.print(F("\nEnviando umidade "));
+    Serial.print(F("\nEnviando umidade: "));
     Serial.print(h);
   
     if (! umidade.publish(h)) {
@@ -120,10 +129,11 @@ void loop() {
     Serial.print(" - Valor analogico : ");
     Serial.println(chuvaAnalogicoValor);
 
-    delay15s();
+    //delay necessário para o thinkspeak
+    delay16s();
     
    //Plublicando se houve chuva
-    Serial.print(F("\nEnviando se ocorreu chuva"));
+    Serial.print(F("\nEnviando se ocorreu chuva: "));
     Serial.print(chuvaDigitalValor);
     Serial.print("...");
     if (! chuva.publish(chuvaDigitalValor)) {
@@ -132,17 +142,17 @@ void loop() {
       Serial.println(F("OK!"));
     }
  
-    delay30m();
+    delay15m();
  
 }
 
-void delay30m(){
-  for(int i = 0; i < 1800; i++){
+void delay15m(){
+  for(int i = 0; i < 900; i++){
     delay(1000);
   }
 }
-void delay15s(){
-  for(int i = 0; i < 15; i++){
+void delay16s(){
+  for(int i = 0; i < 16; i++){
     delay(1000);
   }
 }
