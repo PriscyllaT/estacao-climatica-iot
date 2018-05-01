@@ -8,39 +8,42 @@
 #define DHTTYPE DHT11   
 DHT dht(DHTPIN, DHTTYPE);
 
-/************************* WiFi Access Point *********************************/
+/********************************** Configuração WiFi ****************************************/
 
 #define WLAN_SSID       "GVT-080B"
 #define WLAN_PASS       "32216512"
 int status = WL_IDLE_STATUS;
 
-/************************* MQTT Setup *********************************/
+/********************************** Configuração MQTT ***************************************/
 
 #define SERVER      "mqtt.thingspeak.com"
 #define SERVERPORT  1883                   // use 8883 for SSL
 #define USERNAME    "priscyllat"
 #define MQTT_KEY    "RTLB4NDHEYFD43CU"
 
-/************ Global State (you don't need to change this!) ******************/
+/***************************** Estado Global ************************************************/
 #include<SoftwareSerial.h>
 SoftwareSerial Serial1(3, 4);
-// Create an ESP8266 WiFiClient class to connect to the MQTT server.
+// Configura o cliente MQTT passando o cliente WiFi e o login do servidor MQTT.
 WiFiEspClient client;
 // Setup the MQTT client class by passing in the WiFi client and MQTT server and login details.
 Adafruit_MQTT_Client mqtt(&client, SERVER, SERVERPORT, USERNAME, MQTT_KEY);
 
-/****************************** Feeds ***************************************/
+/****************************** Configuração dos campos ***************************************/
 unsigned long myChannelNumber = 452132;
 const char * myWriteAPIKey = "FTXKGNZ7M6UIT8V9";
 // Notice MQTT paths follow the form: channels/<channelId>/publish/fields/field<fieldNumer>
 Adafruit_MQTT_Publish temperatura = Adafruit_MQTT_Publish(&mqtt, "channels/452132/publish/fields/field1/FTXKGNZ7M6UIT8V9");
 Adafruit_MQTT_Publish umidade = Adafruit_MQTT_Publish(&mqtt, "channels/452132/publish/fields/field2/FTXKGNZ7M6UIT8V9");
 Adafruit_MQTT_Publish chuva = Adafruit_MQTT_Publish(&mqtt, "channels/452132/publish/fields/field3/FTXKGNZ7M6UIT8V9");
+
+/*********************************** Variáveis ***********************************************/
 int chuvaDigital = 6; //Pino ligado ao D0 do sensor
 int chuvaAnalogico = A0; //Pino ligado ao A0 do sensor
 long chuvaDigitalValor = 0;
 long chuvaAnalogicoValor = 0;
-/*************************** Sketch Code ************************************/
+
+/************************************* Sketch ************************************************/
 
 void MQTT_connect();
 
@@ -54,38 +57,37 @@ void setup() {
   Serial1.begin(19200);
 
   WiFi.init(&Serial1);
-  //Connect to WiFi access point.
+  //Conecta a WiFi.
   Serial.println();
-  Serial.print("Connecting to ");
+  Serial.print("Conectando a ");
   Serial.println(WLAN_SSID);
 
-  //attempt to connect to WiFi network
+  //tentativa de conectar a rede WiFi
   while ( status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to WPA SSID: ");
+    Serial.print("Tentando conectar a WPA de SSID: ");
     Serial.println(WLAN_SSID);
-    // Connect to WPA/WPA2 network
+    //Conecta a rede WPA/WPA2 network
     status = WiFi.begin(WLAN_SSID, WLAN_PASS);
   }
 
   Serial.println();
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
+  Serial.println("WiFi conectado");
+  Serial.println("Endereço IP: ");
   Serial.println(WiFi.localIP());
 
 
 }
 
 void loop() {
-  // Ensure the connection to the MQTT server is alive (this will make the first
-  // connection and automatically reconnect when disconnected).  See the MQTT_connect
-  // function definition further below.
+//Se certifica de que há conecxão ao servidor MQTT está viva
+//Isso fará a primeira conexão e automaticamente reconecta quando desconectado.  
   
     MQTT_connect();
     
-    float t = dht.readTemperature(); // Read temperature from DHT sensor.
-    float h = dht.readHumidity();  // Read humidity from DHT sensor
+    float t = dht.readTemperature(); // Lê a temperatura do sensor DHT.
+    float h = dht.readHumidity();  // Lê a umidade do sensor DHT.
    
-    // Now we can publish stuff!
+    // Plublicando temperatura
     Serial.print(F("\nEnviando temperatura "));
     Serial.print(t);
     Serial.print("...");
@@ -94,9 +96,11 @@ void loop() {
     } else {
       Serial.println(F("OK!"));
     }
-    
+
+    //delay necessário para o thinkspeak
     delay15s();
-    
+
+    // Plublicando umidade
     Serial.print(F("\nEnviando umidade "));
     Serial.print(h);
   
@@ -117,8 +121,9 @@ void loop() {
     Serial.println(chuvaAnalogicoValor);
 
     delay15s();
-    // Now we can publish stuff!
-    Serial.print(F("\nEnviando temperatura "));
+    
+   //Plublicando se houve chuva
+    Serial.print(F("\nEnviando se ocorreu chuva"));
     Serial.print(chuvaDigitalValor);
     Serial.print("...");
     if (! chuva.publish(chuvaDigitalValor)) {
@@ -141,27 +146,27 @@ void delay15s(){
     delay(1000);
   }
 }
-// Function to connect and reconnect as necessary to the MQTT server.
-// Should be called in the loop function and it will take care if connecting.
+// Função que conecta e reconecta quando necessário ao servidor MQTT.
+// Deve ser chamada no loop e manipulará a conexão.
 void MQTT_connect() {
   int8_t ret;
 
-  // Stop if already connected.
+  // Para se já conectado.
   if (mqtt.connected()) {
     return;
   }
 
-  Serial.print("Connecting to MQTT... ");
+  Serial.print("Conectando ao MQTT... ");
 
   uint8_t retries = 3;
-  while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+  while ((ret = mqtt.connect()) != 0) { // connect retornará 0 para conectado
        Serial.println(mqtt.connectErrorString(ret));
-       Serial.println("Retrying MQTT connection in 5 seconds...");
+       Serial.println("Tentando novamente a conexão MQTT em 5 segundos...");
        mqtt.disconnect();
-       delay(5000);  // wait 5 seconds
+       delay(5000);   // espera 5 segundos
        retries--;
        if (retries == 0) {
-         // basically die and wait for WDT to reset me
+          // Espera pelo WTD para se resetar
          while (1);
        }
   }
