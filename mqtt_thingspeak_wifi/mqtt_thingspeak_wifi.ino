@@ -19,8 +19,8 @@ DHT dht(DHTPIN, DHTTYPE);
 
 /********************************** Configuração WiFi ****************************************/
 
-#define WLAN_SSID       "GVT-080B"
-#define WLAN_PASS       "32216512"
+#define WLAN_SSID       "XXXXXXXX"
+#define WLAN_PASS       "XXXXXXXX"
 int status = WL_IDLE_STATUS;
 
 /********************************** Configuração MQTT ***************************************/
